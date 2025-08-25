@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SSL Generator</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin: 40px;
+        max-width: 600px;
+      }
+      input,
+      button {
+        padding: 10px;
+        width: 100%;
+        margin: 10px 0;
+      }
+      .box {
+        padding: 20px;
+        background: #f4f4f4;
+        border-left: 4px solid #2196f3;
+        margin-top: 20px;
+      }
+      code {
+        background: #eee;
+        padding: 2px 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Custom Domain SSL Generator</h2>
+
+    <form method="post" action="{% url 'generate_challenge' %}">
+      {% csrf_token %}
+      <input
+        type="text"
+        name="domain"
+        placeholder="Enter domain (e.g. example.com)"
+        required
+      />
+      <button type="submit">Generate DNS Challenge</button>
+    </form>
+
+    {% if record_name and record_value %}
+    <div class="box">
+      <h3>Step 1: Add TXT record</h3>
+      <p><strong>Name:</strong> <code>{{ record_name }}</code></p>
+      <p><strong>Value:</strong> <code>{{ record_value }}</code></p>
+
+      <form method="post" action="{% url 'verify_dns' %}">
+        {% csrf_token %}
+        <input type="hidden" name="domain" value="{{ domain }}" />
+        <button type="submit">I've added the DNS record, Verify</button>
+      </form>
+    </div>
+    {% endif %} {% if certificate %}
+    <div class="box">
+      <h3>✅ Certificate Issued!</h3>
+      <pre>{{ certificate }}</pre>
+    </div>
+    {% endif %} {% if error %}
+    <div style="background: #ffe0e0; padding: 15px; border-left: 4px solid red">
+      <strong>Error:</strong> {{ error }}
+    </div>
+    {% endif %} {% if certificate and domain %}
+    <div class="box">
+      <h3>Download Files (links expire in 5 min)</h3>
+      <p>
+        <a
+          href="{% url 'download_cert' domain='{{ domain }}' filetype='cert' %}"
+          >Download Certificate (fullchain.cer)</a
+        >
+      </p>
+      <p>
+        <a href="{% url 'download_cert' domain='{{ domain }}' filetype='key' %}"
+          >Download Private Key (privkey.key)</a
+        >
+      </p>
+    </div>
+    {% endif %}
+    <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+    </form>
+  </body>
+</html>

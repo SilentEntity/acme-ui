@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSL Certificate Dashboard</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f2f2f2; }
+        tr.expiring { background-color: #fff3cd; }
+    </style>
+</head>
+<body>
+    <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+    </form>
+    <h1>📋 SSL Certificate Dashboard</h1>
+
+    <a href="?expiring=1">Show Expiring Soon</a> | <a href="/dashboard/">Show All</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Domain</th>
+                <th>Issued At</th>
+                <th>Expires At</th>
+                <th>Days Left</th>
+                <th>Status</th>
+                <th>Renewed At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cert in certs %}
+            <tr {% if cert.days_left != None and cert.days_left < 15 %}class="expiring"{% endif %}>
+                <td>{{ cert.domain }}</td>
+                <td>{{ cert.issued_at|date:"Y-m-d" }}</td>
+                <td>{{ cert.expires_at|date:"Y-m-d" }}</td>
+                <td>{% if cert.days_left != None %}{{ cert.days_left }}{% else %}-{% endif %}</td>
+                <td>{{ cert.status }}</td>
+                <td>{{ cert.renewed_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
