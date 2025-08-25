@@ -12,7 +12,7 @@ python manage.py renew_certs
 ```
 python manage.py createsuperuser
 
-deepak/deepakdx7@gmail.com
+example/exmaple
 ```
 
 ```
